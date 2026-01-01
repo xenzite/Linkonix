@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Link - Canva Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Monetag SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='10399846' data-sdk='show_10399846'></script>
+
+    <style>
+        body { background-color: #0f1116; color: white; font-family: sans-serif; }
+        .glass-card { background: #1a1d24; border-radius: 24px; border: 1px solid #333; }
+        .gradient-header { background: linear-gradient(135deg, #7000ff 0%, #00d4ff 100%); border-radius: 24px 24px 0 0; }
+        .step-box { flex: 1; padding: 12px; text-align: center; border-radius: 10px; font-weight: bold; background: #333; margin: 4px; transition: 0.3s; }
+        .step-active { background: #555; border: 1px solid #7000ff; }
+        .step-complete-1 { background: #ff0000 !important; } /* Step 1 Complete - Red */
+        .step-complete-2 { background: #00ff00 !important; color: black; } /* Step 2 Complete - Green */
+        .step-complete-3 { background: #007bff !important; } /* Step 3 Complete - Blue */
+        .main-btn { background: #7000ff; border-radius: 16px; transition: 0.3s; }
+        .final-btn { background: #28a745; display: none; border-radius: 16px; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="glass-card w-full max-w-md overflow-hidden shadow-2xl">
+        <!-- Header -->
+        <div class="gradient-header p-10 text-center relative">
+            <h1 id="app-title" class="text-3xl font-extrabold tracking-tight">Loading...</h1>
+            <p id="app-subtitle" class="text-sm mt-3 opacity-90 leading-relaxed px-4"></p>
+            <span class="absolute top-4 right-6 text-2xl">🌙</span>
+        </div>
+
+        <div class="p-6 space-y-5">
+            <!-- Step Indicators -->
+            <div class="flex justify-between">
+                <div id="step1-box" class="step-box step-active">Step 1</div>
+                <div id="step2-box" class="step-box">Step 2</div>
+                <div id="step3-box" class="step-box">Step 3</div>
+            </div>
+
+            <!-- Ad Action Button -->
+            <button id="ad-btn" onclick="handleAdClick()" class="main-btn w-full py-5 text-xl font-bold flex items-center justify-center gap-3 shadow-lg">
+                <span id="lock-icon">🔒</span> <span id="btn-label">Watch Ads to Unlock</span>
+            </button>
+
+            <!-- Final Section -->
+            <div id="final-section" class="hidden space-y-4 animate-bounce-in">
+                 <button id="final-link-btn" class="final-btn w-full py-5 text-xl font-bold block text-center shadow-lg">
+                    🎉 Click to Open Link
+                </button>
+                <div class="bg-[#16191f] p-5 rounded-2xl border border-gray-700 text-center">
+                    <p class="text-sm text-gray-400 mb-3 flex items-center justify-center gap-2">🌐 Copy link and paste it in browser:</p>
+                    <input id="link-input" type="text" readonly class="w-full bg-black border border-gray-700 p-3 rounded-lg text-cyan-400 text-sm mb-3 text-center outline-none">
+                    <button onclick="copyLink()" class="bg-cyan-500 text-black px-6 py-2 rounded-lg text-sm font-black uppercase tracking-wider">📋 Copy Canva Pro Link</button>
+                </div>
+            </div>
+
+            <!-- Other Buttons -->
+            <button id="btn2" class="w-full py-4 bg-[#6200ea] rounded-2xl font-bold text-lg"></button>
+            <button id="btn3" class="w-full py-4 bg-[#6200ea] rounded-2xl font-bold text-lg"></button>
+            
+            <!-- Tutorial -->
+            <div class="bg-[#1f2229] p-4 rounded-2xl text-center border border-gray-800">
+                <button id="tutorial-btn" class="text-sm font-medium text-gray-300 hover:text-white">How to join Canva Pro? 📚</button>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center pt-2">
+                <a id="footer-link" href="#" target="_blank" class="text-cyan-400 text-sm font-bold hover:underline">by Xenzite</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- FIREBASE CONFIGURATION (এখাণে আপনার কোড বসান) ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // --------------------------------------------------
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentStep = 1;
+        let adClicksInStep = 0;
+        let configData = {};
+
+        // ডাটাবেজ থেকে ডাটা নিয়ে আসা
+        db.collection("settings").doc("config").onSnapshot((doc) => {
+            if (doc.exists) {
+                configData = doc.data();
+                document.getElementById('app-title').innerText = configData.title || "Canva Pro Team";
+                document.getElementById('app-subtitle').innerText = configData.subtitle || "";
+                document.getElementById('btn2').innerText = configData.btn2_text || "Join Channel";
+                document.getElementById('btn3').innerText = configData.btn3_text || "Premium Apps";
+                document.getElementById('footer-link').innerText = configData.footer_text || "by Xenzite";
+                document.getElementById('footer-link').href = configData.footer_link || "#";
+                
+                document.getElementById('btn2').onclick = () => window.open(configData.btn2_link, '_blank');
+                document.getElementById('btn3').onclick = () => window.open(configData.btn3_link, '_blank');
+                document.getElementById('tutorial-btn').onclick = () => window.open(configData.tutorial_link, '_blank');
+                document.getElementById('final-link-btn').onclick = () => window.open(configData.final_link, '_blank');
+                document.getElementById('link-input').value = configData.final_link;
+            }
+        });
+
+        function handleAdClick() {
+            // Monetag Ad Show Logic
+            if(typeof show_10399846 === 'function') {
+                show_10399846().then(() => {
+                    processStep();
+                }).catch(() => {
+                    processStep(); // Ad লোড না হলেও প্রসেস করবে
+                });
+            } else {
+                processStep();
+            }
+        }
+
+        function processStep() {
+            adClicksInStep++;
+            if (adClicksInStep >= 2) {
+                moveToNextStep();
+            } else {
+                alert("One more ad to unlock the next step!");
+            }
+        }
+
+        function moveToNextStep() {
+            if (currentStep === 1) {
+                document.getElementById('step1-box').classList.replace('step-active', 'step-complete-1');
+                currentStep = 2; adClicksInStep = 0;
+                document.getElementById('step2-box').classList.add('step-active');
+            } else if (currentStep === 2) {
+                document.getElementById('step2-box').classList.replace('step-active', 'step-complete-2');
+                currentStep = 3; adClicksInStep = 0;
+                document.getElementById('step3-box').classList.add('step-active');
+            } else if (currentStep === 3) {
+                document.getElementById('step3-box').classList.replace('step-active', 'step-complete-3');
+                document.getElementById('ad-btn').style.display = 'none';
+                document.getElementById('final-section').style.display = 'block';
+                document.getElementById('final-link-btn').style.display = 'block';
+            }
+        }
+
+        function copyLink() {
+            const copyText = document.getElementById("link-input");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Link Copied to Clipboard!");
+        }
+    </script>
+</body>
+</html>

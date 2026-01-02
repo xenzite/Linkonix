@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linkonix By Xenzite </title>
+    <title>Linkonix Pro - Advanced UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -11,83 +11,213 @@
     <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='10399846' data-sdk='show_10399846'></script>
 
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+
     <style>
-        body { background-color: #0f1116; color: white; font-family: sans-serif; }
-        .glass-card { background: #1a1d24; border-radius: 24px; border: 1px solid #333; }
-        .gradient-header { background: linear-gradient(135deg, #7000ff 0%, #00d4ff 100%); border-radius: 24px 24px 0 0; }
-        .step-box { flex: 1; padding: 12px; text-align: center; border-radius: 10px; font-weight: bold; background: #333; margin: 4px; transition: 0.3s; }
-        .step-active { background: #555; border: 1px solid #7000ff; }
-        .step-complete-1 { background: #ff0000 !important; } /* Step 1 Complete - Red */
-        .step-complete-2 { background: #00ff00 !important; color: black; } /* Step 2 Complete - Green */
-        .step-complete-3 { background: #007bff !important; } /* Step 3 Complete - Blue */
-        .main-btn { background: #7000ff; border-radius: 16px; transition: 0.3s; }
-        .final-btn { background: #28a745; display: none; border-radius: 16px; }
+        :root {
+            --bg: #0b0e14;
+            --card: #151921;
+            --text: #ffffff;
+            --primary: #8b5cf6;
+            --accent: #06b6d4;
+            --step-bg: #222832;
+        }
+
+        .light-mode {
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --primary: #6366f1;
+            --accent: #0ea5e9;
+            --step-bg: #e5e7eb;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card {
+            background: var(--card);
+            border: 1px solid rgba(123, 123, 123, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .step-pill {
+            flex: 1;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--step-bg);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin: 0 4px;
+            transition: 0.4s;
+            border: 1px solid transparent;
+        }
+
+        .active-step {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .done-1 { background: #ef4444 !important; color: white; }
+        .done-2 { background: #10b981 !important; color: white; }
+        .done-3 { background: #3b82f6 !important; color: white; }
+
+        .action-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-radius: 20px;
+        }
+
+        .action-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Advanced Toast Notification */
+        #custom-alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #1f2937;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            border: 1px solid rgba(255,255,255,0.1);
+            min-width: 300px;
+        }
+
+        #custom-alert.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .theme-toggle {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .input-box {
+            background: rgba(0,0,0,0.05);
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            transition: 0.3s;
+        }
+
+        .input-box:focus {
+            border-color: var(--primary);
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <div class="glass-card w-full max-w-md overflow-hidden shadow-2xl">
+    <!-- Custom Alert UI -->
+    <div id="custom-alert">
+        <span id="alert-icon">🔔</span>
+        <span id="alert-msg">Notification message here</span>
+    </div>
+
+    <div class="glass-card w-full max-w-md overflow-hidden">
         <!-- Header -->
-        <div class="gradient-header p-10 text-center relative">
-            <h1 id="app-title" class="text-3xl font-extrabold tracking-tight">Loading...</h1>
-            <p id="app-subtitle" class="text-sm mt-3 opacity-90 leading-relaxed px-4"></p>
-            <span class="absolute top-4 right-6 text-2xl">🌙</span>
+        <div class="p-8 pb-4 text-center relative">
+            <div class="flex justify-between items-center mb-6">
+                <div class="w-10"></div> <!-- Placeholder -->
+                <div class="bg-purple-500/10 p-3 rounded-2xl">
+                    <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.826a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                </div>
+                <div onclick="toggleTheme()" class="theme-toggle">
+                    <span id="theme-icon">🌙</span>
+                </div>
+            </div>
+            <h1 id="app-title" class="text-3xl font-extrabold tracking-tight mb-2">Loading...</h1>
+            <p id="app-subtitle" class="text-gray-500 text-sm font-medium"></p>
         </div>
 
-        <div class="p-6 space-y-5">
-            <!-- Step Indicators -->
-            <div class="flex justify-between">
-                <div id="step1-box" class="step-box step-active">Step 1</div>
-                <div id="step2-box" class="step-box">Step 2</div>
-                <div id="step3-box" class="step-box">Step 3</div>
+        <div class="p-6 pt-2 space-y-6">
+            <!-- Steps -->
+            <div class="flex justify-between px-2">
+                <div id="step1-box" class="step-pill active-step">Step 1</div>
+                <div id="step2-box" class="step-pill">Step 2</div>
+                <div id="step3-box" class="step-pill">Step 3</div>
             </div>
 
-            <!-- Ad Action Button -->
-            <button id="ad-btn" onclick="handleAdClick()" class="main-btn w-full py-5 text-xl font-bold flex items-center justify-center gap-3 shadow-lg">
-                <span id="lock-icon">🔒</span> <span id="btn-label">Watch Ads to Unlock</span>
-            </button>
-
-            <!-- Final Section -->
-            <div id="final-section" class="hidden space-y-4 animate-bounce-in">
-                 <button id="final-link-btn" class="final-btn w-full py-5 text-xl font-bold block text-center shadow-lg">
-                    🎉 Click to Open Link
+            <!-- Main Action -->
+            <div id="action-area">
+                <button id="ad-btn" onclick="handleAdClick()" class="action-btn w-full py-5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-lg font-bold shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-3">
+                    <span id="lock-icon">🔒</span> <span id="btn-label">Unlock Content</span>
                 </button>
-                <div class="bg-[#16191f] p-5 rounded-2xl border border-gray-700 text-center">
-                    <p class="text-sm text-gray-400 mb-3 flex items-center justify-center gap-2">🌐 Copy link and paste it in browser:</p>
-                    <input id="link-input" type="text" readonly class="w-full bg-black border border-gray-700 p-3 rounded-lg text-cyan-400 text-sm mb-3 text-center outline-none">
-                    <button onclick="copyLink()" class="bg-cyan-500 text-black px-6 py-2 rounded-lg text-sm font-black uppercase tracking-wider">📋 Copy Canva Pro Link</button>
+            </div>
+
+            <!-- Final Area -->
+            <div id="final-section" class="hidden space-y-4 animate-in fade-in zoom-in duration-500">
+                 <button id="final-link-btn" class="action-btn w-full py-5 bg-emerald-500 text-white text-xl font-bold shadow-lg shadow-emerald-500/20">
+                    🚀 Open Final Link
+                </button>
+                <div class="p-5 rounded-3xl border border-dashed border-gray-500/30 text-center">
+                    <input id="link-input" type="text" readonly class="input-box w-full p-4 rounded-2xl text-center text-sm mb-4 outline-none font-semibold">
+                    <button onclick="copyLink()" class="w-full bg-cyan-500/10 text-cyan-500 py-3 rounded-2xl text-sm font-bold uppercase tracking-widest hover:bg-cyan-500 hover:text-white transition-all">
+                        📋 Copy To Clipboard
+                    </button>
                 </div>
             </div>
 
-            <!-- Other Buttons -->
-            <button id="btn2" class="w-full py-4 bg-[#6200ea] rounded-2xl font-bold text-lg"></button>
-            <button id="btn3" class="w-full py-4 bg-[#6200ea] rounded-2xl font-bold text-lg"></button>
-            
-            <!-- Tutorial -->
-            <div class="bg-[#1f2229] p-4 rounded-2xl text-center border border-gray-800">
-                <button id="tutorial-btn" class="text-sm font-medium text-gray-300 hover:text-white">How It Works ? 📚</button>
+            <!-- Secondary Buttons -->
+            <div class="grid grid-cols-2 gap-3">
+                <button id="btn2" class="action-btn py-4 bg-gray-500/10 font-bold rounded-2xl text-sm"></button>
+                <button id="btn3" class="action-btn py-4 bg-gray-500/10 font-bold rounded-2xl text-sm"></button>
             </div>
-
-            <!-- Footer -->
-            <div class="text-center pt-2">
-                <a id="footer-link" href="#" target="_blank" class="text-cyan-400 text-sm font-bold hover:underline">by Xenzite</a>
+            
+            <!-- Tutorial & Footer -->
+            <div class="space-y-4 pt-2">
+                <button id="tutorial-btn" class="w-full py-3 rounded-2xl border border-gray-500/20 text-xs font-bold opacity-60 hover:opacity-100 transition-opacity uppercase tracking-widest">
+                    How it works? 📚
+                </button>
+                <div class="text-center">
+                    <a id="footer-link" href="#" target="_blank" class="gradient-text text-sm font-extrabold hover:opacity-80 transition-opacity"></a>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- FIREBASE CONFIGURATION (এখাণে আপনার কোড বসান) ---
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
-  apiKey: "AIzaSyBf35oEnYTMKy0Rz2FVTrad9QHuw9GZLvU",
-  authDomain: "earning-mini-app-60aba.firebaseapp.com",
-  databaseURL: "https://earning-mini-app-60aba-default-rtdb.firebaseio.com",
-  projectId: "earning-mini-app-60aba",
-  storageBucket: "earning-mini-app-60aba.firebasestorage.app",
-  messagingSenderId: "925556911564",
-  appId: "1:925556911564:web:bb23ce49216ba7a094c169",
-  measurementId: "G-LQKC6HTED7"
-};
-        // --------------------------------------------------
+            apiKey: "AIzaSyBf35oEnYTMKy0Rz2FVTrad9QHuw9GZLvU",
+            authDomain: "earning-mini-app-60aba.firebaseapp.com",
+            databaseURL: "https://earning-mini-app-60aba-default-rtdb.firebaseio.com",
+            projectId: "earning-mini-app-60aba",
+            storageBucket: "earning-mini-app-60aba.firebasestorage.app",
+            messagingSenderId: "925556911564",
+            appId: "1:925556911564:web:bb23ce49216ba7a094c169",
+            measurementId: "G-LQKC6HTED7"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -96,14 +226,33 @@
         let adClicksInStep = 0;
         let configData = {};
 
-        // ডাটাবেজ থেকে ডাটা নিয়ে আসা
+        // Custom Toast Notification Function
+        function showAlert(msg, icon = '🔔') {
+            const alertBox = document.getElementById('custom-alert');
+            document.getElementById('alert-msg').innerText = msg;
+            document.getElementById('alert-icon').innerText = icon;
+            
+            alertBox.classList.add('show');
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+            }, 3000);
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
+        }
+
+        // Load Data
         db.collection("settings").doc("config").onSnapshot((doc) => {
             if (doc.exists) {
                 configData = doc.data();
-                document.getElementById('app-title').innerText = configData.title || "Canva Pro Team";
-                document.getElementById('app-subtitle').innerText = configData.subtitle || "";
-                document.getElementById('btn2').innerText = configData.btn2_text || "Join Channel";
-                document.getElementById('btn3').innerText = configData.btn3_text || "Premium Apps";
+                document.getElementById('app-title').innerText = configData.title || "Linkonix";
+                document.getElementById('app-subtitle').innerText = configData.subtitle || "Premium Unlocker";
+                document.getElementById('btn2').innerText = configData.btn2_text || "Telegram";
+                document.getElementById('btn3').innerText = configData.btn3_text || "Support";
                 document.getElementById('footer-link').innerText = configData.footer_text || "by Xenzite";
                 document.getElementById('footer-link').href = configData.footer_link || "#";
                 
@@ -116,13 +265,8 @@
         });
 
         function handleAdClick() {
-            // Monetag Ad Show Logic
             if(typeof show_10399846 === 'function') {
-                show_10399846().then(() => {
-                    processStep();
-                }).catch(() => {
-                    processStep(); // Ad লোড না হলেও প্রসেস করবে
-                });
+                show_10399846().then(() => processStep()).catch(() => processStep());
             } else {
                 processStep();
             }
@@ -132,25 +276,26 @@
             adClicksInStep++;
             if (adClicksInStep >= 2) {
                 moveToNextStep();
+                showAlert("Step " + (currentStep-1) + " Completed!", "✅");
             } else {
-                alert("One more ad to unlock the next step!");
+                showAlert("Watch one more ad to continue!", "📺");
             }
         }
 
         function moveToNextStep() {
             if (currentStep === 1) {
-                document.getElementById('step1-box').classList.replace('step-active', 'step-complete-1');
+                document.getElementById('step1-box').classList.add('done-1');
                 currentStep = 2; adClicksInStep = 0;
-                document.getElementById('step2-box').classList.add('step-active');
+                document.getElementById('step2-box').classList.add('active-step');
             } else if (currentStep === 2) {
-                document.getElementById('step2-box').classList.replace('step-active', 'step-complete-2');
+                document.getElementById('step2-box').classList.add('done-2');
                 currentStep = 3; adClicksInStep = 0;
-                document.getElementById('step3-box').classList.add('step-active');
+                document.getElementById('step3-box').classList.add('active-step');
             } else if (currentStep === 3) {
-                document.getElementById('step3-box').classList.replace('step-active', 'step-complete-3');
+                document.getElementById('step3-box').classList.add('done-3');
                 document.getElementById('ad-btn').style.display = 'none';
-                document.getElementById('final-section').style.display = 'block';
-                document.getElementById('final-link-btn').style.display = 'block';
+                document.getElementById('final-section').classList.remove('hidden');
+                showAlert("All Steps Completed! Link Unlocked.", "🎉");
             }
         }
 
@@ -158,7 +303,7 @@
             const copyText = document.getElementById("link-input");
             copyText.select();
             document.execCommand("copy");
-            alert("Link Copied to Clipboard!");
+            showAlert("Link copied to clipboard!", "📋");
         }
     </script>
 </body>
